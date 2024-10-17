@@ -14,11 +14,12 @@ def create_default_folders(file_util: FileUtil):
     file_util.create_folder(FolderNames.UNPROCESSED_JOB_FOLDER)
 
 def main():
-    config = Config()
+    file_util = FileUtil()
+    config = Config(file_util)
     configure_logger("pcms", config.get_value(ConfigKeys.DEBUG_LOGGING))
 
 
-    file_util = FileUtil()
+
     create_default_folders(file_util)
     google_service = GoogleService(
         file_util,

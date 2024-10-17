@@ -1,6 +1,8 @@
 import configparser
 import os
 
+from PCMS.util.file_util import FileUtil
+
 
 class ConfigKeys:
     AUTH_CRED_FILE_NAME = 'auth_cred_file_name'
@@ -30,9 +32,11 @@ DEFAULT_CONFIG = {
 
 
 class Config:
-    def __init__(self):
+    def __init__(self, file_util: FileUtil):
+        self.__file_util = file_util
         self.config = configparser.ConfigParser()
-        if not os.path.exists(CONFIG_FILE_NAME):
+
+        if not self.__file_util.file_exists(CONFIG_FILE_NAME):
             self.create_default_config()
         self.config.read(CONFIG_FILE_NAME)
         self.verify_config_file()
@@ -42,7 +46,8 @@ class Config:
         self.save_config_file()
 
     def save_config_file(self):
-        with open(CONFIG_FILE_NAME, 'w') as config_file:
+        config_path = os.path.join(self.__file_util.get_root(), CONFIG_FILE_NAME)
+        with open(config_path, 'w') as config_file:
             self.config.write(config_file)
 
     def verify_config_file(self):
