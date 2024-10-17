@@ -11,6 +11,7 @@ class ConfigKeys:
     BILLED_COMPANY_PROVINCE = 'billed_company_province'
     BILLED_COMPANY_POSTAL_CODE = 'billed_company_postal_code'
     BILLED_COMPANY_ATTENTION = 'billed_company_attention'
+    DEBUG_LOGGING = 'debug_logging'
 
 
 DEFAULT_SECTION = 'Default'
@@ -24,6 +25,7 @@ DEFAULT_CONFIG = {
     ConfigKeys.BILLED_COMPANY_PROVINCE: '',
     ConfigKeys.BILLED_COMPANY_POSTAL_CODE: '',
     ConfigKeys.BILLED_COMPANY_ATTENTION: '',
+    ConfigKeys.DEBUG_LOGGING: False
 }
 
 
@@ -58,4 +60,9 @@ class Config:
             self.save_config_file()  # Needed to make changed to config file, save those changes
 
     def get_value(self, value: str):
-        return self.config.get(DEFAULT_SECTION, value)
+        try:
+            # Attempt to get the value as a boolean first
+            return self.config.getboolean(DEFAULT_SECTION, value)
+        except ValueError:
+            # If it can't be interpreted as a boolean, return as a string
+            return self.config.get(DEFAULT_SECTION, value)

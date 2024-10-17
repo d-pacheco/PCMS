@@ -14,8 +14,9 @@ def create_default_folders(file_util: FileUtil):
     file_util.create_folder(FolderNames.UNPROCESSED_JOB_FOLDER)
 
 def main():
-    configure_logger("pcms")
     config = Config()
+    configure_logger("pcms", config.get_value(ConfigKeys.DEBUG_LOGGING))
+
 
     file_util = FileUtil()
     create_default_folders(file_util)

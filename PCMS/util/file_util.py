@@ -92,5 +92,5 @@ class FileUtil:
 
 def is_running_in_executable():
     running_in_exe = getattr(sys, 'frozen', False)
-    logger.info(f"Running in exe: {running_in_exe}")
+    logger.debug(f"Running in exe: {running_in_exe}")
     return running_in_exe
