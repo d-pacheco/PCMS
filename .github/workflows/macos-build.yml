@@ -27,7 +27,7 @@ jobs:
       - name: Build with PyInstaller
         run: |
           pip install pyinstaller
-          pyinstaller -F main.py -n 'PCMS'
+          arch -x86_64 pyinstaller -F main.py -n 'PCMS'
 
       # Step 5: Upload the built artifact
       - name: Upload Artifact
