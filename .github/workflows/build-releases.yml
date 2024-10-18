@@ -29,25 +29,24 @@ jobs:
     needs: [build-macos-arm, build-macos-intel, build-windows]
 
     steps:
-      # Step 1: Download macOS ARM artifact
       - name: Download macOS ARM Artifact
         uses: actions/download-artifact@v4
         with:
           name: macOS-app-arm
 
-      # Step 2: Download macOS Intel artifact
       - name: Download macOS Intel Artifact
         uses: actions/download-artifact@v4
         with:
           name: macOS-app-intel
 
-      # Step 3: Download Windows artifact
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
           name: windows-app
 
-      # Step 4: Create GitHub Release
+      - name: List dist contents
+        run: ls -R dist
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -59,33 +58,33 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 5: Upload macOS ARM artifact to the release
+      - name: Set Upload URL
+        run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
       - name: Upload macOS ARM Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ env.UPLOAD_URL }}
           asset_path: PCMS_arm
           asset_name: PCMS_arm
           asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 6: Upload macOS Intel artifact to the release
       - name: Upload macOS Intel Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ env.UPLOAD_URL }}
           asset_path: PCMS_intel
           asset_name: PCMS_intel
           asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 7: Upload Windows artifact to the release
       - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ env.UPLOAD_URL }}
           asset_path: PCMS_windows
           asset_name: PCMS_windows
           asset_content_type: application/octet-stream
