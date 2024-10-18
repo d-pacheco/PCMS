@@ -10,15 +10,15 @@ on:
 jobs:
   # Trigger the macOS ARM build
   build-macos-arm:
-    uses: d-pacheco/PCMS/.github/workflows/macos-build-arm.yml
+    uses: d-pacheco/PCMS/.github/workflows/macos-build-arm.yml@main
 
   # Trigger the macOS Intel build
   build-macos-intel:
-    uses: d-pacheco/PCMS/.github/workflows/macos-build-intel.yml
+    uses: d-pacheco/PCMS/.github/workflows/macos-build-intel.yml@main
 
   # Trigger the Windows build
   build-windows:
-    uses: d-pacheco/PCMS/.github/workflows/windows-build.yml
+    uses: d-pacheco/PCMS/.github/workflows/windows-build.yml@main
 
   create-release:
     runs-on: ubuntu-latest
