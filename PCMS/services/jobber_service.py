@@ -34,36 +34,41 @@ class JobberService:
 
 
 def get_job_data_from_pdf(jobber_pdf_path: str) -> list[JobData]:
-    reader = PdfReader(jobber_pdf_path)
-    page = reader.get_page(0)
-    text = page.extract_text()
-    lines = text.split("\n")
+    try:
+        reader = PdfReader(jobber_pdf_path)
+        page = reader.get_page(0)
+        text = page.extract_text()
+        lines = text.split("\n")
 
-    address = get_service_address(lines)
-    items_and_quantities = get_item_numbers_and_quantities(lines)
+        address = get_service_address(lines)
+        items_and_quantities = get_item_numbers_and_quantities(lines)
 
-    results = []
-    for items_and_quantity in items_and_quantities:
-        results.append(
-            JobData(
-                item_id=items_and_quantity[0],
-                address=address,
-                quantity=str(items_and_quantity[1])
+        results = []
+        for items_and_quantity in items_and_quantities:
+            results.append(
+                JobData(
+                    item_id=items_and_quantity[0],
+                    address=address,
+                    quantity=str(items_and_quantity[1])
+                )
             )
-        )
-        results.append(
-            JobData(
-                item_id=items_and_quantity[0]+"I",
-                address=address,
-                quantity=str(items_and_quantity[1])
+            results.append(
+                JobData(
+                    item_id=items_and_quantity[0]+"I",
+                    address=address,
+                    quantity=str(items_and_quantity[1])
+                )
             )
-        )
 
-    return results
+        return results
+    except Exception as e:
+        logger.error(f"Error getting job data from pdf {jobber_pdf_path}: {str(e)}")
+        raise e
 
 def get_service_address(page_lines: list[str]):
     start_index = get_address_starting_index(page_lines)
-    assert (start_index is not None)
+    if start_index is None:
+        raise Exception("Could not find a valid starting address index")
 
     address_lines = []
     for line in page_lines[start_index:]:
@@ -114,7 +119,7 @@ def get_item_numbers_and_quantities(lines: list[str]) -> list[tuple[str, int]]:
         if item_number:
             results.append((item_number, quantity))
         else:
-            logger.error(f"Could not find item number for item with description: {description}")
+            raise Exception(f"Could not find item number for item with description: {description}")
 
     return results
 
