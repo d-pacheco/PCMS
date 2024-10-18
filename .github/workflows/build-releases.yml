@@ -67,6 +67,8 @@ jobs:
           asset_path: PCMS_arm
           asset_name: PCMS_arm
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 6: Upload macOS Intel artifact to the release
       - name: Upload macOS Intel Release Asset
@@ -76,6 +78,8 @@ jobs:
           asset_path: PCMS_intel
           asset_name: PCMS_intel
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 7: Upload Windows artifact to the release
       - name: Upload Windows Release Asset
@@ -85,3 +89,5 @@ jobs:
           asset_path: PCMS_windows
           asset_name: PCMS_windows
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
