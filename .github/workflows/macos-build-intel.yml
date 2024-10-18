@@ -27,7 +27,7 @@ jobs:
       - name: Build with PyInstaller
         run: |
           pip install pyinstaller
-          arch -x86_64 pyinstaller -F main_gui.py --windowed -n 'PCMS' --icon=icons/app_icon.icns
+          arch -x86_64 pyinstaller -F main_gui.py --windowed -n 'PCMS'
 
       # Step 5: Upload the built artifact
       - name: Upload Artifact
