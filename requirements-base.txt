@@ -7,3 +7,4 @@ gspread
 protobuf~=5.28.2
 pydantic
 pypdf
+customtkinter

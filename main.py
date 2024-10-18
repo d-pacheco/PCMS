@@ -17,10 +17,9 @@ def main():
     file_util = FileUtil()
     config = Config(file_util)
     configure_logger("pcms", file_util, config.get_value(ConfigKeys.DEBUG_LOGGING))
-
-
-
     create_default_folders(file_util)
+
+
     google_service = GoogleService(
         file_util,
         config.get_value(ConfigKeys.AUTH_CRED_FILE_NAME)

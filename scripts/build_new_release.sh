@@ -5,7 +5,7 @@ pip install -r requirements-base.txt
 pip install -r requirements-dev.txt
 
 # Run PyInstaller to create a standalone executable
-python -m PyInstaller -F main.py -n 'PCMS'
+python -m PyInstaller -F main_gui.py --windowed -n 'PCMS'
 
 # Check if PyInstaller ran successfully
 if [ $? -eq 0 ]; then
