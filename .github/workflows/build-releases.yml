@@ -44,9 +44,6 @@ jobs:
         with:
           name: windows-app
 
-      - name: List dist contents
-        run: ls
-
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1

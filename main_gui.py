@@ -8,6 +8,7 @@ from PCMS.util.file_util import FileUtil
 from PCMS.util.folder_names import FolderNames
 from PCMS.util.config import Config, ConfigKeys
 from PCMS.GUI.pcms_gui import PcmsGUI
+from PCMS.util.version_manager import VersionManager
 
 
 def create_default_folders(file_util: FileUtil):
@@ -16,8 +17,8 @@ def create_default_folders(file_util: FileUtil):
     file_util.create_folder(FolderNames.UNPROCESSED_JOB_FOLDER)
 
 
-def run_gui(jobber_servie: JobberService, invoice_service: InvoiceService):
-    gui = PcmsGUI(jobber_servie, invoice_service)
+def run_gui(jobber_servie: JobberService, invoice_service: InvoiceService, version_manager: VersionManager):
+    gui = PcmsGUI(jobber_servie, invoice_service, version_manager)
     ctk.set_appearance_mode("dark")
     gui.mainloop()
 
@@ -26,6 +27,7 @@ def main():
     config = Config(file_util)
     configure_logger("pcms", file_util, config.get_value(ConfigKeys.DEBUG_LOGGING))
     create_default_folders(file_util)
+    version_manager = VersionManager(file_util)
 
 
     google_service = GoogleService(
@@ -43,7 +45,7 @@ def main():
         FolderNames.UNPROCESSED_JOB_FOLDER,
         FolderNames.PROCESSED_JOB_FOLDER
     )
-    run_gui(jobber_service, invoice_service)
+    run_gui(jobber_service, invoice_service, version_manager)
 
 if __name__ == '__main__':
     try:
