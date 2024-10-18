@@ -22,6 +22,10 @@ jobs:
         with:
           name: macOS-app-arm
 
+      # Debug Step: List files to check if the artifact is downloaded correctly
+      - name: List Files
+        run: ls -R dist  # Check the contents of the 'dist' directory
+
       # Step 2: Create GitHub Release
       - name: Create GitHub Release
         id: create_release
