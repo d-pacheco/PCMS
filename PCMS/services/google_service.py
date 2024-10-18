@@ -50,15 +50,19 @@ class GoogleService:
         :param spreadsheet_id: The ID of the spreadsheet to create a copy of.
         :param new_name: The name of the newly created spreadsheet.
         """
-        logger.info(f"Creating a copy of spreadsheet with ID {spreadsheet_id} with new name {new_name}")
-        body = {
-            'name': new_name,
-            'mimeType': 'application/vnd.google-apps.spreadsheet'
-        }
-        response = self.__drive_service.files().copy(fileId=spreadsheet_id, body=body).execute()
-        new_sheet_id = response['id']
-        logger.info(f"Copied File ID: {new_sheet_id}")
-        return new_sheet_id
+        try:
+            logger.info(f"Creating a copy of spreadsheet with ID {spreadsheet_id} with new name {new_name}")
+            body = {
+                'name': new_name,
+                'mimeType': 'application/vnd.google-apps.spreadsheet'
+            }
+            response = self.__drive_service.files().copy(fileId=spreadsheet_id, body=body).execute()
+            new_sheet_id = response['id']
+            logger.info(f"Copied File ID: {new_sheet_id}")
+            return new_sheet_id
+        except Exception as e:
+            logger.error(f"Error when making copy of spreadsheet with ID {spreadsheet_id} with name {new_name}: {str(e)}")
+            raise e
 
     @staticmethod
     def create_write_request(sheet_id: str, range_name: str, value: str) -> dict:
@@ -90,20 +94,26 @@ class GoogleService:
         :param spreadsheet_id: The ID of the spreadsheet to be turned into a PDF.
         :param sheet_name: The name of the sheet inside the spreadsheet to be exported.
         """
-        gid = self.get_sheet_gid(spreadsheet_id, sheet_name)
-        pdf_export_url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=pdf&gid={gid}"
+        try:
+            gid = self.get_sheet_gid(spreadsheet_id, sheet_name)
+            pdf_export_url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=pdf&gid={gid}"
 
-        headers = {
-            'Authorization': f'Bearer {self.__creds.token}',
-        }
-        response = requests.get(pdf_export_url, headers=headers)
+            headers = {
+                'Authorization': f'Bearer {self.__creds.token}',
+            }
+            response = requests.get(pdf_export_url, headers=headers)
 
-        if response.status_code == 200:
-            return response.content
-        else:
+            if response.status_code == 200:
+                return response.content
+            else:
+                logger.error(
+                    f"None 200 code while exporting the sheet {sheet_name} from spreadsheet with ID {spreadsheet_id} "
+                    f"as a PDF: {response.content}")
+        except Exception as e:
             logger.error(
-                f"An error occurred while exporting the sheet {sheet_name} from spreadsheet with ID {spreadsheet_id} "
-                f"as a PDF: {response.content}")
+                f"Error when export as PDF spreadsheet with ID {spreadsheet_id} with "
+                f"sheet name {sheet_name}: {str(e)}")
+            raise e
 
     def get_last_row_with_data(self, spreadsheet_id: str, data_range: str) -> int:
         """
@@ -112,11 +122,17 @@ class GoogleService:
         :param spreadsheet_id: The ID of the Google Sheet.
         :param data_range: The range to look for data.
         """
-        result = self.__sheet_service.spreadsheets().values().get(
-            spreadsheetId=spreadsheet_id,
-            range=data_range
-        ).execute()
-        return len(result.get('values', []))
+        try:
+            result = self.__sheet_service.spreadsheets().values().get(
+                spreadsheetId=spreadsheet_id,
+                range=data_range
+            ).execute()
+            return len(result.get('values', []))
+        except Exception as e:
+            logger.error(
+                f"Error when getting last row with data spreadsheet with ID {spreadsheet_id} "
+                f"with data range {data_range}: {str(e)}")
+            raise e
 
     def delete_rows_in_range(self, spreadsheet_id: str, sheet_name: str, start_row: int, end_row: int) -> None:
         """

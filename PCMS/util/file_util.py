@@ -27,15 +27,23 @@ class FileUtil:
 
         :param file_or_folder_name: The name of the file or folder to get absolute path for
         """
-        file_or_folder_path = join(self.__root_dir, file_or_folder_name)
-        if not exists(file_or_folder_path):
-            raise Exception(f"File or folder {file_or_folder_name} does not exist with the path {file_or_folder_path}")
+        try:
+            file_or_folder_path = join(self.__root_dir, file_or_folder_name)
+            if not exists(file_or_folder_path):
+                raise Exception(f"File or folder {file_or_folder_name} does not exist with the path {file_or_folder_path}")
 
-        return file_or_folder_path
+            return file_or_folder_path
+        except Exception as e:
+            logger.error(f"Error while getting path for {file_or_folder_name}: {str(e)}")
+            raise e
 
     def file_exists(self, file_name: str) -> bool:
-        file_or_folder_path = join(self.__root_dir, file_name)
-        return exists(file_or_folder_path)
+        try:
+            file_or_folder_path = join(self.__root_dir, file_name)
+            return exists(file_or_folder_path)
+        except Exception as e:
+            logger.error(f"Error while checking if file {file_name} exists: {str(e)}")
+            raise e
 
     def create_folder(self, folder_name: str) -> None:
         """

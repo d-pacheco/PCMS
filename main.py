@@ -16,7 +16,7 @@ def create_default_folders(file_util: FileUtil):
 def main():
     file_util = FileUtil()
     config = Config(file_util)
-    configure_logger("pcms", config.get_value(ConfigKeys.DEBUG_LOGGING))
+    configure_logger("pcms", file_util, config.get_value(ConfigKeys.DEBUG_LOGGING))
 
 
 
