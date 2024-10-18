@@ -10,6 +10,8 @@ jobs:
       # Step 1: Trigger macOS ARM build
       - name: Trigger macOS ARM build
         uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             await github.rest.actions.createWorkflowDispatch({
@@ -22,6 +24,8 @@ jobs:
       # Step 2: Trigger macOS Intel build
       - name: Trigger macOS Intel build
         uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             await github.rest.actions.createWorkflowDispatch({
@@ -34,6 +38,8 @@ jobs:
       # Step 3: Trigger Windows build
       - name: Trigger Windows build
         uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             await github.rest.actions.createWorkflowDispatch({
