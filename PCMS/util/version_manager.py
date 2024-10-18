@@ -11,7 +11,7 @@ logger = logging.getLogger("pcms")
 
 class VersionManager:
     __LATEST_RELEASE_URL = "https://api.github.com/repos/d-pacheco/pcms/releases/latest"
-    __CURRENT_VERSION = 1.0
+    __CURRENT_VERSION = 1.1
 
     def __init__(self, file_util: FileUtil):
         self.__file_util = file_util

@@ -2,7 +2,7 @@ import logging
 import shutil
 import sys
 from os import makedirs, listdir
-from os.path import isfile, join, dirname, abspath, exists, basename
+from os.path import isfile, join, dirname, abspath, exists, basename, splitext
 
 logger = logging.getLogger("pcms")
 
@@ -96,6 +96,24 @@ class FileUtil:
         except Exception as e:
             logger.error(f"Error occurred while moving the file: {e}")
             return False
+
+    @staticmethod
+    def get_file_name(file_path: str) -> str | None:
+        """
+        Get the name of the file (without extension) from a given file path.
+
+        :param file_path: The full path of the file.
+        :return: The name of the file without the extension or None if the path is invalid.
+        """
+        try:
+            # Get the file name with extension
+            file_name_with_extension = basename(file_path)
+            # Split the file name and extension
+            file_name, _ = splitext(file_name_with_extension)
+            return file_name if file_name else None
+        except Exception as e:
+            print(f"An error occurred while retrieving the file name: {e}")
+            return None
 
 
 def is_running_in_executable():
