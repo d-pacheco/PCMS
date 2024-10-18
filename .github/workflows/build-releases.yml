@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-release:
-    uses: d-pacheco/PCMS/.github/workflows/build-macos-arm.yml@main
+    uses: d-pacheco/PCMS/.github/workflows/macos-build-arm.yml@main
 
   create-release:
     runs-on: ubuntu-latest
