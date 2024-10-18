@@ -1,3 +1,4 @@
+import logging
 import configparser
 import os
 
@@ -30,6 +31,8 @@ DEFAULT_CONFIG = {
     ConfigKeys.DEBUG_LOGGING: False
 }
 
+logger = logging.getLogger("pcms")
+
 
 class Config:
     def __init__(self, file_util: FileUtil):
@@ -37,28 +40,34 @@ class Config:
         self.config = configparser.ConfigParser()
 
         if not self.__file_util.file_exists(CONFIG_FILE_NAME):
+            logger.info(f"Could not find config file in {self.__file_util.get_root()}")
             self.create_default_config()
         self.config.read(CONFIG_FILE_NAME)
         self.verify_config_file()
 
     def create_default_config(self):
+        logger.info("Creating config file with default values")
         self.config[DEFAULT_SECTION] = DEFAULT_CONFIG
         self.save_config_file()
 
     def save_config_file(self):
+        logger.info("Saving config file")
         config_path = os.path.join(self.__file_util.get_root(), CONFIG_FILE_NAME)
         with open(config_path, 'w') as config_file:
             self.config.write(config_file)
 
     def verify_config_file(self):
+        logger.info("Validating config file")
         valid_config = True
         if self.config.has_section(DEFAULT_SECTION):
             for key in DEFAULT_CONFIG:
                 if not self.config.has_option(DEFAULT_SECTION, key):
+                    logger.warning(f"Config file missing option {key}")
                     # populate the config with the option and default value if not present
                     self.config[DEFAULT_SECTION][key] = str(DEFAULT_CONFIG[key])
                     valid_config = False
         else:
+            logger.warning("Config file missing default section")
             self.create_default_config()  # re-create the entire config if the section is wrong
 
         if not valid_config:
