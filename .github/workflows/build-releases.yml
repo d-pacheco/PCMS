@@ -1,110 +1,43 @@
-name: Build New Release
+name: Create Release with macOS ARM Build
 
 on:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version'
+        required: true
 
 jobs:
-  trigger-builds:
+  release-job:
     runs-on: ubuntu-latest
+
     steps:
-      # Step 1: Trigger macOS ARM build
-      - name: Trigger macOS ARM build
-        uses: actions/github-script@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'macos-build-arm.yml',
-              ref: context.ref,
-            });
+      # Step 1: Call Action 1 to build and upload the artifact
+      - name: Call Build for macOS ARM
+        uses: d-pacheco/PCMS/.github/workflows/build-macos-arm.yml@main
 
-      # Step 2: Trigger macOS Intel build
-      - name: Trigger macOS Intel build
-        uses: actions/github-script@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Step 2: Download the artifact produced by Action 1
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
         with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'macos-build-intel.yml',
-              ref: context.ref,
-            });
+          name: macOS-app-arm  # Must match the artifact name from Action 1
 
-      # Step 3: Trigger Windows build
-      - name: Trigger Windows build
-        uses: actions/github-script@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'windows-build.yml',
-              ref: context.ref,
-            });
-
-  collect-artifacts:
-    needs: trigger-builds
-    runs-on: ubuntu-latest
-    steps:
-      # Step 4: Download artifacts from all builds
-      - name: Download macOS ARM artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: macOS-app-arm
-
-      - name: Download macOS Intel artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: macOS-app-intel
-
-      - name: Download Windows artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-app
-
-      # Step 5: Create a release and upload the artifacts
-      - name: Create Release
+      # Step 3: Create GitHub Release
+      - name: Create GitHub Release
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'v1.0.0'  # Adjust version accordingly
-          release_name: 'New PCMS Release'
-          body: |
-            This release contains the following builds:
-            - macOS ARM
-            - macOS Intel
-            - Windows
+          tag_name: ${{ github.event.inputs.release_version }}  # Tag name provided as input
+          release_name: Release ${{ github.event.inputs.release_version }}
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token to create the release
 
-      - name: Upload macOS ARM artifact to release
+      # Step 4: Upload the artifact to the release
+      - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ./macOS-app-arm.zip
-          asset_name: macOS-app-arm.zip
-          asset_content_type: application/zip
-
-      - name: Upload macOS Intel artifact to release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ./macOS-app-intel.zip
-          asset_name: macOS-app-intel.zip
-          asset_content_type: application/zip
-
-      - name: Upload Windows artifact to release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ./windows-app.zip
-          asset_name: windows-app.zip
-          asset_content_type: application/zip
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Upload URL from the release step
+          asset_path: dist/PCMS_arm  # Path to the artifact downloaded from Action 1
+          asset_name: PCMS_arm  # Name of the asset in the release
+          asset_content_type: application/octet-stream
