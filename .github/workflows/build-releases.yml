@@ -24,6 +24,7 @@ jobs:
 
       # Step 2: Create GitHub Release
       - name: Create GitHub Release
+        id: create_release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ github.event.inputs.release_version }}
@@ -37,7 +38,7 @@ jobs:
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: dist/PCMS_arm
           asset_name: PCMS_arm
           asset_content_type: application/octet-stream
