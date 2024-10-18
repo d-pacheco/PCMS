@@ -93,7 +93,7 @@ class CcService:
 
         return transactions
 
-    def __write_transactions_to_csv(self, folder_name: str, filename: str, transactions: list) -> None:
+    def __write_transactions_to_csv(self, folder_name: str, filename: str, transactions: list[Transaction]) -> None:
         """
         Write credit card transactions to a CSV file in a specified folder.
 
@@ -105,20 +105,18 @@ class CcService:
             folder_path = self.__file_util.get_path(folder_name)
             csv_file_path: str = os.path.join(folder_path, f"{filename}.csv")
 
-            max_date_length = max(len(transaction[0]) for transaction in transactions)
-            max_description_length = max(len(transaction[1]) for transaction in transactions)
-            max_amount_length = max(len(f"${transaction[2]}") for transaction in transactions)
+            max_date_length = max(len(transaction.date) for transaction in transactions)
+            max_description_length = max(len(transaction.description) for transaction in transactions)
+            max_amount_length = max(len(f"${transaction.amount}") for transaction in transactions)
 
             with open(csv_file_path, mode='w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(["Date", "Transaction", "Amount"])
 
                 for transaction in transactions:
-                    date, description, amount = transaction
-
-                    centered_date = date.center(max_date_length)
-                    centered_description = description.center(max_description_length)
-                    centered_amount = f"${amount}".center(max_amount_length)
+                    centered_date = transaction.date.center(max_date_length)
+                    centered_description = transaction.description.center(max_description_length)
+                    centered_amount = f"${transaction.amount}".center(max_amount_length)
                     writer.writerow([centered_date, centered_description, centered_amount])
 
             logger.info(f"Transactions written to {csv_file_path}")
