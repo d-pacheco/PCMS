@@ -42,7 +42,7 @@ class Config:
         if not self.__file_util.file_exists(CONFIG_FILE_NAME):
             logger.info(f"Could not find config file in {self.__file_util.get_root()}")
             self.create_default_config()
-        self.config.read(CONFIG_FILE_NAME)
+        self.config.read(self.__file_util.get_path(CONFIG_FILE_NAME))
         self.verify_config_file()
 
     def create_default_config(self):
