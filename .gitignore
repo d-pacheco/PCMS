@@ -167,4 +167,7 @@ config.cfg
 /logs
 /Invoices
 /.idea
+/Processed CC Statements
+/Unprocessed CC Statements
+/Generated CSVs
 token.json

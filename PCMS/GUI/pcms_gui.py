@@ -14,7 +14,7 @@ logger = logging.getLogger("pcms")
 
 
 class PcmsGUI(ctk.CTk):
-    def __init__(self, jobber_service, invoice_service, version_manager: VersionManager):
+    def __init__(self, jobber_service, invoice_service, version_manager: VersionManager, cc_service):
         super().__init__()
         self.version_manager = version_manager
 
@@ -39,7 +39,7 @@ class PcmsGUI(ctk.CTk):
         for Page in (HomePage, DataEntryPage, PageOne):
             page_name = Page.__name__
             if page_name == HomePage.__name__:
-                frame = Page(parent=self.container, controller=self, jobber_service=jobber_service, invoice_service=invoice_service)
+                frame = Page(parent=self.container, controller=self, jobber_service=jobber_service, invoice_service=invoice_service, cc_service=cc_service)
             else:
                 frame = Page(parent=self.container, controller=self)
             self.pages[page_name] = frame
