@@ -1,0 +1,104 @@
+name: Build New Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trigger-builds:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Trigger macOS ARM build
+      - name: Trigger macOS ARM build
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'macos-build-arm.yml',
+              ref: context.ref,
+            });
+
+      # Step 2: Trigger macOS Intel build
+      - name: Trigger macOS Intel build
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'macos-build-intel.yml',
+              ref: context.ref,
+            });
+
+      # Step 3: Trigger Windows build
+      - name: Trigger Windows build
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'windows-build.yml',
+              ref: context.ref,
+            });
+
+  collect-artifacts:
+    needs: trigger-builds
+    runs-on: ubuntu-latest
+    steps:
+      # Step 4: Download artifacts from all builds
+      - name: Download macOS ARM artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: macOS-app-arm
+
+      - name: Download macOS Intel artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: macOS-app-intel
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-app
+
+      # Step 5: Create a release and upload the artifacts
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 'v1.0.0'  # Adjust version accordingly
+          release_name: 'New PCMS Release'
+          body: |
+            This release contains the following builds:
+            - macOS ARM
+            - macOS Intel
+            - Windows
+          draft: false
+          prerelease: false
+
+      - name: Upload macOS ARM artifact to release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./macOS-app-arm.zip
+          asset_name: macOS-app-arm.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS Intel artifact to release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./macOS-app-intel.zip
+          asset_name: macOS-app-intel.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows artifact to release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./windows-app.zip
+          asset_name: windows-app.zip
+          asset_content_type: application/zip
