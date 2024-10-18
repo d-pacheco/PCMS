@@ -1,4 +1,4 @@
-name: Create Release with macOS ARM Build
+name: Create Release with Multiple Builds
 
 on:
   workflow_dispatch:
@@ -7,26 +7,46 @@ on:
         description: 'Release version'
         required: true
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
-  build-and-release:
+  # Trigger the macOS ARM build
+  build-macos-arm:
     uses: d-pacheco/PCMS/.github/workflows/macos-build-arm.yml@main
+
+  # Trigger the macOS Intel build
+  build-macos-intel:
+    uses: d-pacheco/PCMS/.github/workflows/macos-build-intel.yml@main
+
+  # Trigger the Windows build
+  build-windows:
+    uses: d-pacheco/PCMS/.github/workflows/windows-build.yml@main
 
   create-release:
     runs-on: ubuntu-latest
-    needs: build-and-release
+    needs: [build-macos-arm, build-macos-intel, build-windows]
 
     steps:
-      # Step 1: Download the artifact produced by Action 1
-      - name: Download Artifact
+      - name: Download macOS ARM Artifact
         uses: actions/download-artifact@v4
         with:
           name: macOS-app-arm
 
-      # Debug Step: List files to check if the artifact is downloaded correctly
-      - name: List Files
-        run: ls -R dist  # Check the contents of the 'dist' directory
+      - name: Download macOS Intel Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS-app-intel
 
-      # Step 2: Create GitHub Release
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-app
+
+      - name: List dist contents
+        run: ls
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -38,11 +58,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 3: Upload the artifact to the release
-      - name: Upload Release Asset
+      - name: Set Upload URL
+        run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
+      - name: Upload macOS ARM Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/PCMS_arm
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: PCMS_arm
           asset_name: PCMS_arm
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS Intel Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: PCMS_intel
+          asset_name: PCMS_intel
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: PCMS_windows.exe
+          asset_name: PCMS_windows.exe
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
