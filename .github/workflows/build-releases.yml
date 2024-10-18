@@ -45,7 +45,7 @@ jobs:
           name: windows-app
 
       - name: List dist contents
-        run: ls -R dist
+        run: ls
 
       - name: Create GitHub Release
         id: create_release
